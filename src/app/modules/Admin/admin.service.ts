@@ -1,4 +1,4 @@
-import { Prisma, PrismaClient } from "@prisma/client";
+import { Admin, Prisma, PrismaClient, UserStatus } from "@prisma/client";
 import calculatePagination from "../../../helpers/paginationHelpers";
 const prisma = new PrismaClient();
 
@@ -53,13 +53,14 @@ const getSearchAdminData = async (params: any, options: any) => {
       })),
     });
   }
+
   // conditionArray akti array so akhane object convert korar jonno and oparetor use kora hoise array theke object hoiye gese *** where er majhe array support korbena alwas where object accept korbe
   const whereConditions: Prisma.AdminWhereInput = { AND: conditionArray };
 
   const result = await prisma.admin.findMany({
     where: whereConditions,
     skip,
-    take:limit,
+    take: limit,
     orderBy:
       options.sortBy && options.sortOrder
         ? {
@@ -69,11 +70,106 @@ const getSearchAdminData = async (params: any, options: any) => {
             createdAt: "desc",
           },
   });
+  const total = await prisma.admin.count({
+    where: whereConditions,
+  });
+  return {
+    meta: {
+      page,
+      limit,
+      total,
+    },
+    data: result,
+  };
+};
 
+const getIdByAdminData = async (id: string) => {
+  await prisma.admin.findFirstOrThrow({
+    where: {
+      id,
+    },
+  });
+  const result = await prisma.admin.findUnique({
+    where: {
+      id,
+    },
+  });
+  return result;
+};
+
+const updateByAdminData = async (id: string, data: Partial<Admin>) => {
+  await prisma.admin.findFirstOrThrow({
+    where: {
+      id,
+    },
+  });
+  const result = await prisma.admin.update({
+    where: {
+      id,
+    },
+    data,
+  });
+  return result;
+};
+
+const deleteByAdminData = async (id: string) => {
+  await prisma.admin.findFirstOrThrow({
+    where: {
+      id,
+    },
+  });
+  const result = await prisma.$transaction(async (transactionClient) => {
+    const adminDeleteData = await transactionClient.admin.delete({
+      where: {
+        id,
+      },
+    });
+
+    const userDeleteData = await transactionClient.user.delete({
+      where: {
+        email: adminDeleteData.email
+      },
+    });
+    return adminDeleteData
+  });
+  return result;
+};
+
+const softdeleteByAdminData = async (id: string) => {
+  await prisma.admin.findFirstOrThrow({
+    where: {
+      id,
+    },
+  });
+  const result = await prisma.$transaction(async (transactionClient) => {
+    const adminDeleteData = await transactionClient.admin.update
+    ({
+      where: {
+        id,
+      },
+      data:{
+        isDeleted: true
+      }
+    });
+
+    const userDeleteData = await transactionClient.user.update({
+      where: {
+        email: adminDeleteData.email
+      },
+      data:{
+        status: UserStatus.BLOCKED
+      }
+    });
+    return adminDeleteData
+  });
   return result;
 };
 
 export const adminServices = {
   getAllAdminData,
   getSearchAdminData,
+  getIdByAdminData,
+  updateByAdminData,
+  deleteByAdminData,
+  softdeleteByAdminData
 };
