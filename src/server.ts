@@ -4,7 +4,7 @@ const port = 3000;
 
 async function main() {
   const server: Server = app.listen(port, () => {
-    console.log("hello server", port);
+    console.log("Running server start from :- ",port);
   });
 }
 main();

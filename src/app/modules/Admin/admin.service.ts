@@ -54,6 +54,9 @@ const getSearchAdminData = async (params: any, options: any) => {
     });
   }
 
+    conditionArray.push({
+      isDeleted: false
+    })
   // conditionArray akti array so akhane object convert korar jonno and oparetor use kora hoise array theke object hoiye gese *** where er majhe array support korbena alwas where object accept korbe
   const whereConditions: Prisma.AdminWhereInput = { AND: conditionArray };
 
@@ -83,10 +86,12 @@ const getSearchAdminData = async (params: any, options: any) => {
   };
 };
 
-const getIdByAdminData = async (id: string) => {
+const getIdByAdminData = async (id: string): Promise<Admin | null> => {
   await prisma.admin.findFirstOrThrow({
     where: {
       id,
+      isDeleted: false
+      // soft deleted data show korbena
     },
   });
   const result = await prisma.admin.findUnique({
@@ -101,6 +106,7 @@ const updateByAdminData = async (id: string, data: Partial<Admin>) => {
   await prisma.admin.findFirstOrThrow({
     where: {
       id,
+      isDeleted: false
     },
   });
   const result = await prisma.admin.update({
@@ -139,6 +145,7 @@ const softdeleteByAdminData = async (id: string) => {
   await prisma.admin.findFirstOrThrow({
     where: {
       id,
+      isDeleted: false
     },
   });
   const result = await prisma.$transaction(async (transactionClient) => {
