@@ -1,5 +1,7 @@
 import { PrismaClient, UserStatus } from "@prisma/client";
 import { generateToken, verifyToken } from "../../../helpers/jwtHelpers";
+import config from "../../../config";
+import { Secret } from "jsonwebtoken";
 const prisma = new PrismaClient();
 const bcrypt = require("bcrypt");
 
@@ -26,8 +28,8 @@ const userAuthentication = async (payload: {
       id: result.id,
       role: result.role,
     },
-    "910124ghj",
-    "10m"
+    config.access_secret as string,
+    config.access_expire as string
   );
 
   const refressToken = generateToken(
@@ -36,8 +38,8 @@ const userAuthentication = async (payload: {
       id: result.id,
       role: result.role,
     },
-    "910124",
-    "30d"
+    config.refresh_secret as string,
+    config.refresh_expire as string
   );
 
   return {
