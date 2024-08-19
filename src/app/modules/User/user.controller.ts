@@ -4,7 +4,7 @@ import httpStatus from "http-status";
 
 const createAdmin = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const result = await userServices.createAdmin(req.body);
+    const result = await userServices.createAdmin(req);
     res.status(httpStatus.OK).json({
       success: true,
       message: "Admin Created Successfuly",
