@@ -1,6 +1,1 @@
-export const filterableFiled = [
-    "contactNumber",
-    "email",
-    "searchTerm",
-    "name",
-  ]
+export const filterableFiled = ["contactNumber", "email", "searchTerm", "name"];

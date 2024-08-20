@@ -3,7 +3,6 @@ import calculatePagination from "../../../helpers/paginationHelpers";
 const prisma = new PrismaClient();
 
 const getAllAdminData = async () => {
-  console.log("hello")
   const result = await prisma.admin.findMany();
   return result;
 };
